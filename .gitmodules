@@ -1,0 +1,15 @@
+[submodule "projects/cap-staking/lib/openzeppelin-contracts"]
+	path = projects/cap-staking/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "projects/cap-staking/lib/forge-std"]
+	path = projects/cap-staking/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "projects/capu/lib/openzeppelin-contracts-upgradeable"]
+	path = projects/capu/lib/openzeppelin-contracts-upgradeable
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable
+[submodule "projects/capu/lib/prb-math"]
+	path = projects/capu/lib/prb-math
+	url = https://github.com/PaulRBerg/prb-math
+[submodule "projects/capu/lib/forge-std"]
+	path = projects/capu/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std

@@ -1,0 +1,22 @@
+# Foundry
+out/
+cache/
+broadcast/
+**/out/
+**/cache/
+**/broadcast/
+
+# Node
+node_modules/
+**/node_modules/
+
+# Secrets — never commit real env files
+.env
+*.env
+!.env.example
+
+# Local Claude tooling (not part of the public repo)
+.claude/
+
+# OS
+.DS_Store

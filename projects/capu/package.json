@@ -1,0 +1,17 @@
+{
+  "name": "@capminal/capu",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Capminal Vault: sCAP staking + CAPU dynamic mint (UUPS upgradeable)",
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test",
+    "test:verbose": "forge test -vvv",
+    "test:gas": "forge test --gas-report",
+    "clean": "forge clean"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0",
+    "@openzeppelin/contracts-upgradeable": "^5.0.0"
+  }
+}

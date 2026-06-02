@@ -1,0 +1,11 @@
+{
+  "name": "capminal-contracts",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Capminal smart contracts (Foundry monorepo)",
+  "scripts": {
+    "build:all": "pnpm -r --filter ./projects/* run build",
+    "test:all": "pnpm -r --filter ./projects/* run test",
+    "clean:all": "pnpm -r --filter ./projects/* run clean"
+  }
+}

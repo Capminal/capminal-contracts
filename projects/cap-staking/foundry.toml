@@ -1,0 +1,32 @@
+[profile.default]
+extends = "../../foundry.toml"
+
+src = "src"
+test = "test"
+out = "out"
+libs = ["lib"]
+
+# Project-specific remappings
+remappings = [
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+    "@cap-staking/=src/",
+    "forge-std/=lib/forge-std/src/",
+]
+
+optimizer = true
+optimizer_runs = 200
+via_ir = true
+gas_reports = ["*"]
+verbosity = 2
+
+[profile.ci]
+extends = "../../foundry.toml"
+fuzz = { runs = 10000 }
+invariant = { runs = 1000, depth = 20 }
+
+[profile.debug]
+extends = "../../foundry.toml"
+optimizer = false
+optimizer_runs = 0
+verbosity = 3
+debug = true

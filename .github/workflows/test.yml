@@ -1,0 +1,28 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  forge:
+    strategy:
+      matrix:
+        project: [cap-staking, capu]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Build
+        working-directory: projects/${{ matrix.project }}
+        run: forge build
+
+      - name: Test
+        working-directory: projects/${{ matrix.project }}
+        run: forge test -vvv
