@@ -8,7 +8,7 @@ its own `foundry.toml`, sources, and tests.
 
 | Module | Path | Summary |
 |---|---|---|
-| **Cap Staking** | [`projects/cap-staking`](./projects/cap-staking) | Lock-duration staking for $CAP. Longer locks earn a larger share multiplier (1×–5×). Shares are recorded on-chain for off-chain reward distribution. |
+| **Cap Staking** *(deprecated)* | [`projects/cap-staking`](./projects/cap-staking) | Retired. Lock-duration staking for $CAP with a 1×–5× share multiplier. Superseded by the CAPU Vault below — kept for reference only. |
 | **CAPU Vault** | [`projects/capu`](./projects/capu) | Two-token system: stake CAP → receive non-transferable **sCAP** → lock sCAP to mint **CAPU**, a compute asset granting $1/day of AI Credit. UUPS-upgradeable, with Synthetix-style streaming CAP rewards. |
 
 The **$CAP** token is deployed on Base mainnet at
