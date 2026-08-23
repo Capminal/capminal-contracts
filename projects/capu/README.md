@@ -160,18 +160,26 @@ Implemented in [`src/libraries/MintRateMath.sol`](./src/libraries/MintRateMath.s
 | 0.50 | 1.284 | Starts to noticeably rise |
 | 0.75 | 2.325 | Costs ~2.3× more sCAP per CAPU |
 | 1.00 (target) | 7.389 (= e²) | "Knee" of the curve |
-| 1.50 | 7,944 | Effectively prohibitive |
-| > ~1.9 | revert `ExponentTooLarge` | Hard ceiling |
+| 1.25 | 49.71 | Steeply prohibitive |
+| 1.50 | 854.06 | Effectively prohibitive |
+| 2.00 | 8.89 × 10⁶ | Minting economically dead |
 
-### 5.2 Production calibration (Base mainnet defaults)
+The formula also has an arithmetic ceiling: at extreme supply / target ratios `baseRate × e^(p·r³)`
+exceeds `uint256` and `computeMintRate` reverts. That region sits far outside any reachable
+operating point — see §5.4 for why the curve itself bounds issuance long before it.
 
-Chosen for **30-day payback** at CAP price ≈ $0.0006812 and ~80% of 300M CAP locked at curve target:
+### 5.2 Production calibration (Base mainnet — current on-chain values)
+
+Values currently set on the deployed `ScapStaking` (Base mainnet):
 
 | Parameter | Value | Reasoning |
 |---|---:|---|
-| `baseMintRate` | 44,040 × 1e18 | = 30 days × $1/day ÷ $0.0006812 → locking ≈ $30 worth of CAP mints 1 CAPU at supply=0 |
+| `baseMintRate` | 334,480 × 1e18 | sCAP required to mint 1 CAPU at supply = 0 |
 | `adjustmentPower` | 2 × 1e18 | Matches reference exponent |
-| `targetCapuSupply` | 2,725 × 1e18 | = 240M CAP ÷ (2 × baseMintRate) → curve hits the e² knee when ~80% of stakeable CAP is locked |
+| `targetCapuSupply` | 300 × 1e18 | = 200M CAP ÷ (2 × baseMintRate) → curve hits the e² knee once ≈200M CAP is locked |
+
+These parameters are live and are recalibrated as the CAP price moves (§5.3). Read them from the
+deployed contract rather than from this table if you need current values.
 
 ### 5.3 Recalibrating
 
@@ -188,20 +196,25 @@ newBaseMintRate   = paybackDays / currentCapPriceUsd
 newTargetSupply   = (expectedMaxStakeableCap × utilizationTarget) / (2 × newBaseMintRate)
 ```
 
-### 5.4 Sample evolution (production defaults)
+### 5.4 Sample evolution (current production parameters)
 
 How much CAPU is minted and what is the marginal rate as sCAP is progressively locked:
 
 | sCAP locked | CAPU minted | Marginal rate (CAP/CAPU) | AI capacity ceiling |
 |---:|---:|---:|---:|
-| 5M | ~113 | ~44,047 | $113/day |
-| 25M | ~566 | ~44,231 | $566/day |
-| 50M | ~1,128 | ~44,790 | $1,128/day |
-| 100M | ~2,201 | ~47,020 | $2,201/day |
-| 240M (target) | ~2,725 | ~325,500 (= 44,040 × e²) | **$2,725/day peak** |
-| > ~290M | revert | — | Hard ceiling |
+| 25M | ~74 | ~344,700 | $74/day |
+| 50M | ~142 | ~412,700 | $142/day |
+| 100M | ~230 | ~825,400 | $230/day |
+| 150M | ~275 | ~1,547,800 | $275/day |
+| 200M (target) | ~300 | ~2,471,500 (= 334,480 × e²) | **$300/day at the knee** |
+| 250M | ~317 | ~3,532,300 | $317/day |
+| 1,000M (entire CAP supply) | ~388 | ~25,677,800 | $388/day |
 
-(Approximate — produced by numerical integration of the curve.)
+(Approximate — produced by numerical integration of the curve as supply grows incrementally.)
+
+What bounds issuance in practice is the curve, not a revert: locking the **entire** 1e9 CAP supply
+would only reach ≈388 CAPU, i.e. supply / target ≈ 1.29. The arithmetic ceiling noted in §5.1 lies
+well beyond that and is not reachable at these parameters.
 
 ---
 
@@ -226,7 +239,7 @@ Default `cooldownDuration` = **1 day**.
 
 ### 6.2 `ScapStaking` (sCAP receipt + CAPU mint vault)
 
-UUPS upgradeable ERC20 (sCAP = transferable receipt token).
+UUPS upgradeable ERC20 (sCAP = **non-transferable** receipt token — see §3.1; `_update` reverts on any holder-to-holder transfer).
 
 | Function | Caller | Description |
 |---|---|---|

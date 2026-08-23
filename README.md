@@ -53,8 +53,10 @@ git submodules under each project's `lib/`.
 ## Security
 
 These contracts are provided as-is. Always review the source and run your own tests before
-interacting with any deployment. See each module's README for detailed security notes. Report
-vulnerabilities responsibly rather than opening a public issue.
+interacting with any deployment. See each module's README for detailed security notes.
+
+Found a vulnerability? Please report it privately — see [SECURITY.md](./SECURITY.md) — rather than
+opening a public issue.
 
 ## License
 

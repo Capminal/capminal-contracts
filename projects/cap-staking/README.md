@@ -1,5 +1,12 @@
 # Cap Staking (`CapStaking`)
 
+> [!WARNING]
+> **Deprecated — no longer in use.** `CapStaking` is retired. All staked CAP has been withdrawn and
+> the contract held no user funds as of this writing. It remains in this repository for reference only — do not integrate against it or deploy it. The lock-duration
+> multiplier model has been retired in favour of flat shares with a fixed unbonding cooldown.
+>
+> The description below documents the contract as designed, for historical reference.
+
 Lock-duration staking for the **$CAP** token. Users lock CAP for a chosen duration to receive
 **shares** (used as points for off-chain reward distribution). Longer locks earn a larger share
 multiplier.
