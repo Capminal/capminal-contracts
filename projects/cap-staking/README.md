@@ -2,10 +2,16 @@
 
 > [!WARNING]
 > **Deprecated — no longer in use.** `CapStaking` is retired. All staked CAP has been withdrawn and
-> the contract held no user funds as of this writing. It remains in this repository for reference only — do not integrate against it or deploy it. The lock-duration
-> multiplier model has been retired in favour of flat shares with a fixed unbonding cooldown.
+> the contract held no user funds as of this writing. It remains in this repository for reference
+> only — do not integrate against it or deploy it.
 >
-> The description below documents the contract as designed, for historical reference.
+> **Where staking lives now:** [`projects/capu`](../capu). The lock-duration multiplier model was
+> removed rather than replaced. CAP is staked into `ScapStaking` for non-transferable **sCAP** 1:1 —
+> no lock and no multiplier, a 7-day unbonding cooldown, and 100% of the streaming CAP rewards.
+> Users who want compute lock sCAP to mint **CAPU**, and staked CAPU is what grants daily AI Credit
+> on the Capminal LLM Gateway. Capital and compute are decoupled.
+>
+> The description below documents `CapStaking` as designed, for historical reference.
 
 Lock-duration staking for the **$CAP** token. Users lock CAP for a chosen duration to receive
 **shares** (used as points for off-chain reward distribution). Longer locks earn a larger share
