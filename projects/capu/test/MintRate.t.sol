@@ -43,7 +43,7 @@ contract MintRateTest is Test {
 
     function test_MintAmountInversionStable() public pure {
         // At supply 0: locking 90 sCAP should mint ~1 CAPU.
-        uint256 amount = MintRateMath.computeMintAmount(90e18, 0, BASE, POWER, TARGET);
+        uint256 amount = MintRateMath.computeMintAmountIntegrated(90e18, 0, BASE, POWER, TARGET);
         assertApproxEqRel(amount, 1e18, 0.0001e18, "approx 1 CAPU per 90 sCAP at supply=0");
     }
 

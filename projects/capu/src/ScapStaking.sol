@@ -240,10 +240,7 @@ contract ScapStaking is
         if (scapAmount > available) revert InsufficientAvailable(scapAmount, available);
 
         uint256 currentCapuSupply = IERC20(address(capu)).totalSupply();
-        // mintRate is reported in the event for observability; computeMintAmount uses the same inputs.
-        uint256 mintRate =
-            MintRateMath.computeMintRate(currentCapuSupply, baseMintRate, adjustmentPower, targetCapuSupply);
-        capuMinted = MintRateMath.computeMintAmount(
+        capuMinted = MintRateMath.computeMintAmountIntegrated(
             scapAmount, currentCapuSupply, baseMintRate, adjustmentPower, targetCapuSupply
         );
         if (capuMinted == 0) revert MintAmountZero();
@@ -254,7 +251,9 @@ contract ScapStaking is
 
         capu.mint(msg.sender, capuMinted);
 
-        emit ScapLocked(msg.sender, scapAmount, capuMinted, mintRate);
+        // The mint walks the curve, so the rate at the start is not what the caller paid. Report the
+        // effective rate actually charged (sCAP per CAPU) so indexers price mints correctly.
+        emit ScapLocked(msg.sender, scapAmount, capuMinted, Math.mulDiv(scapAmount, SCALE, capuMinted));
     }
 
     /// @notice Burn CAPU and unlock the *original* sCAP that was locked when this CAPU was minted.
@@ -320,7 +319,7 @@ contract ScapStaking is
     }
 
     function pendingMintAmount(uint256 scapAmount) external view returns (uint256) {
-        return MintRateMath.computeMintAmount(
+        return MintRateMath.computeMintAmountIntegrated(
             scapAmount, IERC20(address(capu)).totalSupply(), baseMintRate, adjustmentPower, targetCapuSupply
         );
     }
@@ -374,6 +373,12 @@ contract ScapStaking is
         external
         onlyRole(DEFAULT_ADMIN_ROLE)
     {
+        // The new parameters must be able to price a mint at the CURRENT supply. A target far below
+        // the live supply puts the curve past its arithmetic ceiling, which would take minting and
+        // quoting down for every user until an admin noticed. Reverting the whole call is cheaper
+        // than discovering it afterwards, and costs one exp() on a rarely-used admin path.
+        MintRateMath.computeMintRate(IERC20(address(capu)).totalSupply(), _baseRate, _power, _target);
+
         baseMintRate = _baseRate;
         adjustmentPower = _power;
         targetCapuSupply = _target;
