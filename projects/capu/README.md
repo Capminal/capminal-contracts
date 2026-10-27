@@ -253,7 +253,8 @@ UUPS upgradeable ERC20 (sCAP = **non-transferable** receipt token — see §3.1;
 | `setRewardsDuration(d)` | `DEFAULT_ADMIN_ROLE` (only when no period active) | Change period length |
 | `setUnbondingDuration(d)` | `DEFAULT_ADMIN_ROLE` | Tune unbonding |
 | `setMintRateParams(base, power, target)` | `DEFAULT_ADMIN_ROLE` | Recalibrate the curve |
-| `pause / unpause` | `DEFAULT_ADMIN_ROLE` | Halt value-adding mutations (exits stay open) |
+| `setMintPaused(bool)` | `DEFAULT_ADMIN_ROLE` | Close/reopen **only** `lockAndMintCapu`; CAP staking, rewards and every exit stay open |
+| `pause / unpause` | `DEFAULT_ADMIN_ROLE` | Halt value-adding mutations (`stake` + `lockAndMintCapu`; exits stay open) |
 | `upgradeToAndCall` | `DEFAULT_ADMIN_ROLE` | UUPS upgrade |
 
 Default `unbondingDuration` = **7 days**.
@@ -289,6 +290,7 @@ Test suites:
 - `MintRate.t.sol` — formula correctness, monotonicity, boundary reverts (fuzz)
 - `Capu.t.sol` — role gating, stake/unstake/cooldown, pause
 - `ScapStaking.t.sol` — stake/lock/mint/burn/unlock, reward streaming, protocol cut, locked-transfer guard
+- `MintPause.t.sol` — `mintPaused` closes only `lockAndMintCapu`; stake / rewards / unstake / burn stay open
 - `Integration.t.sol` — full E2E user journey
 
 ### 7.2 Deployment overview
@@ -343,6 +345,7 @@ LPs should understand the trade-off: CAPU sitting in a pool **is not staked**, s
 | Timelock on upgrades | **None** | Same as above. UUPS upgrade is instant; key compromise → instant takeover risk |
 | Reward token | **Only CAP** | Minimal state, smallest attack surface. Multi-token can be added via UUPS upgrade |
 | Pause scope | **Both contracts** | Admin halts user mutations on Capu and ScapStaking independently |
+| Mint-only switch | `ScapStaking.mintPaused` | Stop new CAPU issuance without stopping CAP staking; pair with `Capu.pause()` to also close CAPU staking |
 | Mint rate guards | None on `setMintRateParams` (any value accepted) | Admin trusted; add `minBaseRate` guard rails in V2 |
 
 **Tech debt to address before mainnet TVL > $1M or external audit:**
@@ -366,7 +369,7 @@ projects/capu/                                    ← you are here
 │   └── interfaces/{ICapu,IScapStaking}.sol
 ├── test/
 │   ├── MintRate.t.sol, Capu.t.sol
-│   ├── ScapStaking.t.sol, Integration.t.sol, FeeOnTransfer.t.sol
+│   ├── ScapStaking.t.sol, Integration.t.sol, FeeOnTransfer.t.sol, MintPause.t.sol
 │   └── helpers/{Fixture,MockERC20,MockTaxERC20}.sol
 └── lib/                                          ← OZ upgradeable, PRBMath, forge-std
 ```
