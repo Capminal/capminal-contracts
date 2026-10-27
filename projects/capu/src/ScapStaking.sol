@@ -84,8 +84,13 @@ contract ScapStaking is
     mapping(address => uint256) public userRewardPerSharePaid;
     mapping(address => uint256) public rewards; // earned but unclaimed
 
+    // ---------- Mint switch (added in upgrade v3, takes one slot from the gap below) ----------
+    /// @notice When true, lockAndMintCapu is closed. Narrower than pause(): CAP staking, reward
+    ///         streaming and every exit path (unstake / burn / claim) keep running.
+    bool public mintPaused;
+
     /// @dev Reserved storage slots for future upgrades.
-    uint256[42] private __gap;
+    uint256[41] private __gap;
 
     // ---------- Initializer ----------
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -235,6 +240,7 @@ contract ScapStaking is
         updateReward(msg.sender)
         returns (uint256 capuMinted)
     {
+        if (mintPaused) revert MintPaused();
         if (scapAmount == 0) revert ZeroAmount();
         uint256 available = balanceOf(msg.sender) - lockedScap[msg.sender];
         if (scapAmount > available) revert InsufficientAvailable(scapAmount, available);
@@ -383,6 +389,12 @@ contract ScapStaking is
         adjustmentPower = _power;
         targetCapuSupply = _target;
         emit MintRateParamsUpdated(_baseRate, _power, _target);
+    }
+
+    /// @notice Open or close new CAPU minting without touching CAP staking or any exit path.
+    function setMintPaused(bool paused_) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        mintPaused = paused_;
+        emit MintPausedUpdated(paused_);
     }
 
     function pause() external onlyRole(DEFAULT_ADMIN_ROLE) {

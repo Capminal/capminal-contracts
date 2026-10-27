@@ -18,6 +18,7 @@ interface IScapStaking {
     error NonTransferable();
     error InsufficientReserves();
     error SlippageExceeded(uint256 minted, uint256 minCapuOut);
+    error MintPaused();
 
     // ---------- Events ----------
     event Staked(address indexed user, uint256 capAmount, uint256 scapMinted);
@@ -30,6 +31,7 @@ interface IScapStaking {
     event RewardClaimed(address indexed user, uint256 amount);
     event MintRateParamsUpdated(uint256 baseRate, uint256 adjustmentPower, uint256 targetSupply);
     event UnbondingDurationUpdated(uint256 oldDuration, uint256 newDuration);
+    event MintPausedUpdated(bool paused);
 
     // ---------- User mutations ----------
     function stake(uint256 capAmount) external;
@@ -45,12 +47,14 @@ interface IScapStaking {
     function mintedCapuOf(address user) external view returns (uint256);
     function earned(address user) external view returns (uint256);
     function pendingMintAmount(uint256 scapAmount) external view returns (uint256);
+    function mintPaused() external view returns (bool);
 
     // ---------- Admin ----------
     function notifyRewardAmount(uint256 capAmount) external;
     function setRewardsDuration(uint256 newDuration) external;
     function setUnbondingDuration(uint256 newDuration) external;
     function setMintRateParams(uint256 baseRate, uint256 adjustmentPower, uint256 targetSupply) external;
+    function setMintPaused(bool paused) external;
     function pause() external;
     function unpause() external;
 }
